@@ -200,6 +200,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    position: relative;
   }
 
   label {
@@ -529,7 +530,7 @@
      Example:
        const GOOGLE_API_KEY = "AIzaSyB1cD3fGh...";
      ============================================================ */
-  const GOOGLE_API_KEY = "AIzaSyCWGTggb9PMjilOJWQ2ua7H-3nWDFPkjhc";
+  const GOOGLE_API_KEY = "";
 
   let map, marker;
 
@@ -554,23 +555,29 @@
 
   /* Loads the Maps JavaScript API once, on demand. Unlike the server-side
      Geocoding API, this one is designed for browsers and works with HTTP
-     referrer restrictions — which is what keeps the key safe on a public page. */
+     referrer restrictions — which is what keeps the key safe on a public page.
+
+     Note: script.onload only means the loader arrived, NOT that the libraries
+     are ready. We must await importLibrary() as well, or the first call fails. */
   let googleLoader = null;
   function loadGoogleMaps() {
     if (googleLoader) return googleLoader;
 
     googleLoader = new Promise((resolve, reject) => {
-      if (window.google && window.google.maps && window.google.maps.Geocoder) {
+      if (window.google && window.google.maps && window.google.maps.importLibrary) {
         resolve();
         return;
       }
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
-        encodeURIComponent(GOOGLE_API_KEY) + '&libraries=geocoding&loading=async';
+        encodeURIComponent(GOOGLE_API_KEY) + '&loading=async&libraries=geocoding';
       script.async = true;
-      script.onerror = () => reject(new Error('Google says: SCRIPT_LOAD_FAILED — the Maps JavaScript API may not be enabled for this key.'));
+      script.onerror = () => reject(new Error('Google says: SCRIPT_LOAD_FAILED — check that the Maps JavaScript API is enabled and the key allows this site.'));
       script.onload = () => resolve();
       document.head.appendChild(script);
+    }).then(async () => {
+      // Wait for the actual library objects, not just the loader script.
+      await google.maps.importLibrary('geocoding');
     });
 
     return googleLoader;
@@ -796,6 +803,12 @@
       if (e.key === 'Enter') findIntersection();
     });
   });
+
+  // Warm up the Maps library in the background so the first search and the
+  // first keystroke don't pay the loading cost.
+  if (GOOGLE_API_KEY) {
+    loadGoogleMaps().catch(err => console.warn('Preload failed:', err));
+  }
 </script>
 
 </body>
