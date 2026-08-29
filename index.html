@@ -10,26 +10,30 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Intersections">
-<meta name="theme-color" content="#1B1D1F">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%231B1D1F'/%3E%3Crect x='30' y='75' width='120' height='30' fill='%23F2A900'/%3E%3Crect x='75' y='30' width='30' height='120' fill='%23F2A900'/%3E%3Ccircle cx='90' cy='90' r='18' fill='%231B1D1F'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#14161A">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%2314161A'/%3E%3Crect x='58' y='18' width='64' height='144' rx='10' fill='%2323272E' stroke='%23FFD200' stroke-width='5'/%3E%3Ccircle cx='90' cy='52' r='18' fill='%23E3352E'/%3E%3Ccircle cx='90' cy='90' r='18' fill='%23FFB200'/%3E%3Ccircle cx='90' cy='128' r='18' fill='%2300B24F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root {
-    --asphalt: #1B1D1F;
-    --asphalt-2: #262A2D;
-    --concrete: #F1EFE9;
-    --card: #FFFFFF;
-    --amber: #F2A900;
-    --amber-dark: #C98A00;
-    --go-green: #2E6F40;
-    --go-green-dark: #235630;
-    --stop-red: #C1443B;
-    --ink: #1B1D1F;
-    --ink-soft: #5A5E62;
-    --line: #DCD8CE;
+    --night: #14161A;
+    --housing: #23272E;
+    --housing-hi: #2E333B;
+    --backplate: #1A1D22;
+    --visor: #0E1013;
+
+    --sig-red: #E3352E;
+    --sig-amber: #FFB200;
+    --sig-green: #00B24F;
+    --reflect: #FFD200;
+
+    --panel: #1E2229;
+    --panel-line: #343A43;
+    --text: #E8EAED;
+    --text-soft: #9BA3AE;
+    --text-dim: #6B727C;
   }
 
   * { box-sizing: border-box; }
@@ -37,8 +41,8 @@
   html, body {
     margin: 0;
     padding: 0;
-    background: var(--concrete);
-    color: var(--ink);
+    background: var(--night);
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
@@ -47,76 +51,106 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    /* Faint mast-arm gradient behind everything */
+    background:
+      radial-gradient(ellipse at 50% 0%, #1D212A 0%, var(--night) 55%);
   }
 
-  /* ---------- Header ---------- */
+  /* ================= HEADER: signal head ================= */
   header {
-    background: var(--asphalt);
-    padding: 22px 20px 20px;
-    padding-top: calc(22px + env(safe-area-inset-top));
-    position: relative;
-    overflow: hidden;
-  }
-
-  header::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    right: -10%;
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle, rgba(242,169,0,0.18) 0%, transparent 70%);
-  }
-
-  .brand {
+    padding: 18px 20px 20px;
+    padding-top: calc(18px + env(safe-area-inset-top));
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    border-bottom: 1px solid var(--panel-line);
     position: relative;
-    z-index: 1;
   }
 
-  .cross-mark {
-    width: 34px;
-    height: 34px;
-    position: relative;
-    flex-shrink: 0;
-  }
-  .cross-mark span {
+  /* Yellow retroreflective stripe, like a backplate edge */
+  header::after {
+    content: "";
     position: absolute;
-    background: var(--amber);
-    border-radius: 1px;
+    left: 0; right: 0; bottom: 0;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--reflect) 0 14px,
+      #B89400 14px 28px
+    );
+    opacity: 0.85;
   }
-  .cross-mark span:nth-child(1) {
-    width: 34px; height: 8px; top: 13px; left: 0;
+
+  /* --- The signal head itself --- */
+  .signal-head {
+    width: 46px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--housing-hi), var(--housing));
+    border: 2.5px solid var(--reflect);
+    border-radius: 7px;
+    padding: 6px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow:
+      0 3px 10px rgba(0,0,0,0.55),
+      inset 0 1px 0 rgba(255,255,255,0.06);
   }
-  .cross-mark span:nth-child(2) {
-    width: 8px; height: 34px; left: 13px; top: 0;
-  }
-  .cross-mark span:nth-child(3) {
-    width: 10px; height: 10px; top: 12px; left: 12px;
-    background: var(--asphalt);
+
+  .lens {
+    width: 100%;
+    aspect-ratio: 1;
     border-radius: 50%;
+    background: var(--visor);
+    border: 1.5px solid #000;
+    position: relative;
+    transition: background 0.25s ease, box-shadow 0.25s ease;
   }
+
+  /* Lit states — only one active at a time */
+  .lens.on.red {
+    background: radial-gradient(circle at 35% 32%, #FF7A72, var(--sig-red) 62%);
+    box-shadow: 0 0 14px 2px rgba(227,53,46,0.75);
+  }
+  .lens.on.amber {
+    background: radial-gradient(circle at 35% 32%, #FFD87A, var(--sig-amber) 62%);
+    box-shadow: 0 0 14px 2px rgba(255,178,0,0.75);
+  }
+  .lens.on.green {
+    background: radial-gradient(circle at 35% 32%, #6BE8A2, var(--sig-green) 62%);
+    box-shadow: 0 0 14px 2px rgba(0,178,79,0.7);
+  }
+
+  /* Amber flashes while a lookup is running */
+  @keyframes flash {
+    0%, 49%  { opacity: 1; }
+    50%, 100% { opacity: 0.25; }
+  }
+  .lens.flashing { animation: flash 0.85s steps(1, end) infinite; }
+
+  .title-block { min-width: 0; }
 
   h1 {
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.045em;
     text-transform: uppercase;
-    font-size: 20px;
-    color: var(--concrete);
+    font-size: 21px;
+    line-height: 1.1;
+    color: var(--text);
     margin: 0;
   }
 
   .tagline {
-    font-size: 12px;
-    color: #9A9E9F;
-    margin-top: 2px;
-    letter-spacing: 0.02em;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 5px;
   }
 
-  /* ---------- Main ---------- */
+  /* ================= MAIN ================= */
   main {
     flex: 1;
     padding: 20px;
@@ -125,20 +159,35 @@
     gap: 16px;
   }
 
-  .form-card {
-    background: var(--card);
-    border-radius: 4px;
-    border: 1px solid var(--line);
-    padding: 18px 18px 20px;
+  /* Controller-cabinet style panel */
+  .form-card,
+  .choices,
+  .result-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 6px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.4);
   }
+
+  .form-card { padding: 18px 18px 20px; }
 
   .eyebrow {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 14px;
+    color: var(--reflect);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--panel-line);
   }
 
   .street-row {
@@ -148,7 +197,6 @@
   }
 
   .field {
-    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -156,116 +204,124 @@
 
   label {
     font-family: 'Oswald', sans-serif;
-    font-size: 12px;
+    font-size: 11.5px;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-soft);
+    letter-spacing: 0.09em;
+    color: var(--text-soft);
   }
 
   input {
     font-family: 'Inter', sans-serif;
     font-size: 16px;
-    padding: 11px 12px;
-    border: 1.5px solid var(--line);
-    border-radius: 3px;
-    background: var(--concrete);
-    color: var(--ink);
+    padding: 12px 13px;
+    border: 1.5px solid var(--panel-line);
+    border-radius: 4px;
+    background: #16191E;
+    color: var(--text);
     outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-
+  input::placeholder { color: var(--text-dim); }
   input:focus {
-    border-color: var(--amber);
-    background: #FFFDF7;
+    border-color: var(--reflect);
+    box-shadow: 0 0 0 3px rgba(255,210,0,0.12);
   }
 
+  /* "&" divider styled like a stop bar */
   .and-glyph {
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
-    font-size: 13px;
-    color: var(--amber-dark);
+    font-size: 12px;
+    color: var(--text-dim);
     text-align: center;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     user-select: none;
     position: relative;
-    margin: -2px 0;
+    margin: -1px 0;
   }
   .and-glyph::before,
   .and-glyph::after {
     content: "";
     position: absolute;
     top: 50%;
-    width: 38%;
-    height: 1px;
-    background: var(--line);
+    width: 40%;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--panel-line) 0 6px,
+      transparent 6px 12px
+    );
   }
   .and-glyph::before { left: 0; }
   .and-glyph::after { right: 0; }
 
-  .city-field {
-    margin-top: 14px;
-  }
+  .city-field { margin-top: 14px; }
 
+  /* GO button — green signal */
   button.search-btn {
-    margin-top: 18px;
+    margin-top: 20px;
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     border: none;
-    border-radius: 3px;
-    background: var(--amber);
-    color: var(--asphalt);
+    border-radius: 4px;
+    background: linear-gradient(180deg, #00C458, var(--sig-green));
+    color: #04240F;
     font-family: 'Oswald', sans-serif;
     font-size: 15px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     cursor: pointer;
-    transition: background 0.15s ease;
+    box-shadow: 0 0 16px rgba(0,178,79,0.28);
+    transition: filter 0.15s ease, box-shadow 0.15s ease;
   }
-  button.search-btn:active { background: var(--amber-dark); }
+  button.search-btn:active {
+    filter: brightness(0.85);
+    box-shadow: none;
+  }
   button.search-btn:disabled {
-    background: #D9D5C8;
-    color: #9A9E9F;
+    background: #2A2F36;
+    color: var(--text-dim);
+    box-shadow: none;
     cursor: default;
   }
 
-  /* ---------- Status ---------- */
+  /* ================= STATUS ================= */
   .status {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    padding: 12px 14px;
-    border-radius: 3px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    padding: 13px 15px;
+    border-radius: 4px;
     display: none;
+    background: var(--panel);
   }
   .status.show { display: block; }
   .status.error {
-    background: #FBEAE8;
-    color: var(--stop-red);
-    border-left: 3px solid var(--stop-red);
+    color: #FF8078;
+    border-left: 4px solid var(--sig-red);
   }
   .status.loading {
-    background: #EFEBDE;
-    color: var(--ink-soft);
-    border-left: 3px solid var(--amber);
+    color: var(--sig-amber);
+    border-left: 4px solid var(--sig-amber);
   }
 
-  /* ---------- Candidate picker ---------- */
+  /* ================= CANDIDATE PICKER ================= */
   .choices {
     display: none;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 4px;
     overflow: hidden;
   }
   .choices.show { display: block; }
 
   .choices-header {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
-    color: var(--ink-soft);
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--line);
+    color: var(--reflect);
+    padding: 15px 16px 12px;
+    border-bottom: 1px solid var(--panel-line);
   }
 
   .choice {
@@ -274,75 +330,76 @@
     text-align: left;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--panel-line);
     padding: 14px 16px;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
   }
   .choice:last-child { border-bottom: none; }
-  .choice:active { background: #FFFAF0; }
+  .choice:active { background: #262B33; }
 
   .choice-name {
     font-family: 'Oswald', sans-serif;
     font-size: 15px;
     font-weight: 500;
-    color: var(--ink);
+    color: var(--text);
     margin-bottom: 3px;
+    letter-spacing: 0.02em;
   }
 
   .choice-detail {
     font-size: 12.5px;
-    color: var(--ink-soft);
+    color: var(--text-soft);
     line-height: 1.4;
   }
 
-  .approx-note {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    line-height: 1.5;
-    color: var(--ink-soft);
-    background: #EFEBDE;
-    padding: 10px 12px;
-    border-radius: 3px;
-    margin-bottom: 14px;
-  }
-
-  /* ---------- Map + result ---------- */
+  /* ================= RESULT ================= */
   .result-card {
     display: none;
     flex-direction: column;
-    border-radius: 4px;
     overflow: hidden;
-    border: 1px solid var(--line);
-    background: var(--card);
   }
   .result-card.show { display: flex; }
 
   #map {
     width: 100%;
     height: 260px;
-    background: #E5E2D8;
+    background: #0E1013;
+    border-bottom: 3px solid var(--reflect);
   }
 
-  .result-info {
-    padding: 16px 18px;
-  }
+  .result-info { padding: 17px 18px 18px; }
 
   .result-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
+    font-size: 10.5px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
+    letter-spacing: 0.11em;
+    color: var(--text-dim);
+    margin-bottom: 5px;
   }
 
   .result-address {
     font-family: 'Oswald', sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 500;
+    letter-spacing: 0.02em;
     margin-bottom: 16px;
     line-height: 1.3;
+    color: var(--text);
+  }
+
+  .approx-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.55;
+    color: var(--sig-amber);
+    background: rgba(255,178,0,0.08);
+    border-left: 3px solid var(--sig-amber);
+    padding: 10px 12px;
+    border-radius: 3px;
+    margin-bottom: 15px;
   }
 
   .directions-row {
@@ -355,74 +412,84 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px 10px;
-    border-radius: 3px;
+    padding: 13px 10px;
+    border-radius: 4px;
     text-decoration: none;
     font-family: 'Oswald', sans-serif;
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.06em;
+    border: 1.5px solid transparent;
   }
 
   .directions-btn.apple {
-    background: var(--asphalt);
-    color: var(--concrete);
+    background: linear-gradient(180deg, #00C458, var(--sig-green));
+    color: #04240F;
   }
-
   .directions-btn.google {
-    background: var(--go-green);
-    color: var(--concrete);
+    background: linear-gradient(180deg, #00C458, var(--sig-green));
+    color: #04240F;
   }
+  .directions-btn.apple:active { filter: brightness(0.85); }
+  .directions-btn.google:active { filter: brightness(0.85); }
 
-  .directions-btn:active.apple { background: #000; }
-  .directions-btn:active.google { background: var(--go-green-dark); }
-
+  /* ================= FOOTER ================= */
   footer {
     text-align: center;
-    padding: 14px;
-    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    padding: 16px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 10.5px;
-    color: #9A9E9F;
-    letter-spacing: 0.02em;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-top: 1px solid var(--panel-line);
   }
 
   .leaflet-marker-icon.pulse {
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+  }
+  /* Dark-mode the map tiles so they sit in the cabinet aesthetic */
+  .leaflet-tile-pane { filter: brightness(0.78) saturate(0.75) contrast(1.05); }
+  .leaflet-control-zoom a {
+    background: var(--panel) !important;
+    color: var(--text) !important;
+    border-color: var(--panel-line) !important;
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">
-    <div class="cross-mark"><span></span><span></span><span></span></div>
-    <div>
-      <h1>Intersection Finder</h1>
-      <div class="tagline">Search by cross streets, not addresses</div>
-    </div>
+  <div class="signal-head" id="signalHead">
+    <div class="lens red on" id="lensRed"></div>
+    <div class="lens amber" id="lensAmber"></div>
+    <div class="lens green" id="lensGreen"></div>
+  </div>
+  <div class="title-block">
+    <h1>Intersection<br>Finder</h1>
+    <div class="tagline">Cross streets &middot; not addresses</div>
   </div>
 </header>
 
 <main>
   <div class="form-card">
-    <div class="eyebrow">Enter the two cross streets</div>
+    <div class="eyebrow">Approach 1 &amp; Approach 2</div>
     <div class="street-row">
       <div class="field">
         <label for="street1">Street 1</label>
-        <input id="street1" type="text" placeholder="e.g. Main St" autocomplete="off">
+        <input id="street1" type="text" placeholder="e.g. Pomona Ave" autocomplete="off">
       </div>
       <div class="and-glyph">&amp;</div>
       <div class="field">
         <label for="street2">Street 2</label>
-        <input id="street2" type="text" placeholder="e.g. 5th Ave" autocomplete="off">
+        <input id="street2" type="text" placeholder="e.g. Victoria St" autocomplete="off">
       </div>
     </div>
     <div class="field city-field">
       <label for="city">City, State</label>
-      <input id="city" type="text" placeholder="e.g. Columbus, OH" autocomplete="off">
+      <input id="city" type="text" placeholder="e.g. Costa Mesa, CA" autocomplete="off">
     </div>
     <button class="search-btn" id="searchBtn">Find intersection</button>
   </div>
@@ -430,7 +497,7 @@
   <div class="status" id="status"></div>
 
   <div class="choices" id="choices">
-    <div class="choices-header">More than one match — pick one</div>
+    <div class="choices-header">Multiple matches &mdash; select one</div>
     <div id="choicesList"></div>
   </div>
 
@@ -438,7 +505,7 @@
     <div id="map"></div>
     <div class="result-info">
       <div class="result-label">Matched location</div>
-      <div class="result-address" id="resultAddress">—</div>
+      <div class="result-address" id="resultAddress">&mdash;</div>
       <div class="approx-note">Pin is approximate. The directions buttons search Maps by street name, so they'll be more precise than the pin.</div>
       <div class="directions-row">
         <a class="directions-btn apple" id="appleLink" href="#" target="_blank" rel="noopener">Apple Maps</a>
@@ -448,7 +515,7 @@
   </div>
 </main>
 
-<footer>GEOCODING VIA CLAUDE + WEB SEARCH — PROTOTYPE</footer>
+<footer>Intersection Finder &middot; ITS Field Tool</footer>
 
 <script>
   /* ============================================================
@@ -462,9 +529,28 @@
      Example:
        const GOOGLE_API_KEY = "AIzaSyB1cD3fGh...";
      ============================================================ */
-  const GOOGLE_API_KEY = "AIzaSyCWGTggb9PMjilOJWQ2ua7H-3nWDFPkjhc";
+  const GOOGLE_API_KEY = "";
 
   let map, marker;
+
+  /* Drives the header signal head: red = idle/error, flashing amber =
+     lookup running, green = intersection found. */
+  function setSignal(phase) {
+    const lenses = {
+      red: document.getElementById('lensRed'),
+      amber: document.getElementById('lensAmber'),
+      green: document.getElementById('lensGreen')
+    };
+    Object.values(lenses).forEach(l => l.classList.remove('on', 'flashing'));
+
+    if (phase === 'searching') {
+      lenses.amber.classList.add('on', 'flashing');
+    } else if (phase === 'found') {
+      lenses.green.classList.add('on');
+    } else {
+      lenses.red.classList.add('on');
+    }
+  }
 
   /* Loads the Maps JavaScript API once, on demand. Unlike the server-side
      Geocoding API, this one is designed for browsers and works with HTTP
@@ -536,6 +622,7 @@
   }
 
   function showResult(lat, lon, label, mapsQuery, precise) {
+    setSignal('found');
     document.getElementById('choices').classList.remove('show');
     document.getElementById('resultCard').classList.add('show');
     document.getElementById('resultAddress').textContent = label;
@@ -654,6 +741,7 @@
     const city = document.getElementById('city').value.trim();
 
     if (!s1 || !s2 || !city) {
+      setSignal('idle');
       setStatus('Enter both cross streets and a city to search.', 'error');
       return;
     }
@@ -662,6 +750,7 @@
     btn.disabled = true;
     document.getElementById('resultCard').classList.remove('show');
     document.getElementById('choices').classList.remove('show');
+    setSignal('searching');
     setStatus('Searching for ' + s1 + ' & ' + s2 + '…', 'loading');
 
     try {
@@ -675,6 +764,7 @@
       if (!result || !result.found || candidates.length === 0) {
         clearStatus();
         const reason = (result && result.note) ? result.note : 'Check the spelling of both streets and the city.';
+        setSignal('idle');
         setStatus("Couldn't find that intersection. " + reason, 'error');
         btn.disabled = false;
         return;
@@ -693,6 +783,7 @@
       const msg = (err && err.message && err.message.indexOf('Google says') === 0)
         ? err.message
         : 'Something went wrong looking up that intersection. Try again in a moment.';
+      setSignal('idle');
       setStatus(msg, 'error');
     } finally {
       btn.disabled = false;
