@@ -530,7 +530,7 @@
      Example:
        const GOOGLE_API_KEY = "AIzaSyB1cD3fGh...";
      ============================================================ */
-  const GOOGLE_API_KEY = "AIzaSyCWGTggb9PMjilOJWQ2ua7H-3nWDFPkjhc";
+  const GOOGLE_API_KEY = "";
 
   let map, marker;
 
@@ -557,27 +557,43 @@
      Geocoding API, this one is designed for browsers and works with HTTP
      referrer restrictions — which is what keeps the key safe on a public page.
 
-     Note: script.onload only means the loader arrived, NOT that the libraries
-     are ready. We must await importLibrary() as well, or the first call fails. */
+     We use Google's own &callback= parameter rather than the script's onload
+     event. onload only means the file arrived; the callback means the API is
+     actually initialized and Geocoder exists. Relying on onload was what made
+     the first button press fail. */
   let googleLoader = null;
   function loadGoogleMaps() {
     if (googleLoader) return googleLoader;
 
     googleLoader = new Promise((resolve, reject) => {
-      if (window.google && window.google.maps && window.google.maps.importLibrary) {
+      if (window.google && window.google.maps && window.google.maps.Geocoder) {
         resolve();
         return;
       }
+
+      const timeout = setTimeout(() => {
+        reject(new Error('Google says: LOAD_TIMEOUT — the Maps JavaScript API did not finish loading.'));
+      }, 15000);
+
+      // Google calls this global function once the API is fully ready.
+      window.__gmapsReady = function () {
+        clearTimeout(timeout);
+        if (window.google && window.google.maps && window.google.maps.Geocoder) {
+          resolve();
+        } else {
+          reject(new Error('Google says: GEOCODER_UNAVAILABLE — the API loaded but the geocoder is missing.'));
+        }
+      };
+
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
-        encodeURIComponent(GOOGLE_API_KEY) + '&loading=async&libraries=geocoding';
+        encodeURIComponent(GOOGLE_API_KEY) + '&callback=__gmapsReady';
       script.async = true;
-      script.onerror = () => reject(new Error('Google says: SCRIPT_LOAD_FAILED — check that the Maps JavaScript API is enabled and the key allows this site.'));
-      script.onload = () => resolve();
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error('Google says: SCRIPT_LOAD_FAILED — check that the Maps JavaScript API is enabled and the key allows this site.'));
+      };
       document.head.appendChild(script);
-    }).then(async () => {
-      // Wait for the actual library objects, not just the loader script.
-      await google.maps.importLibrary('geocoding');
     });
 
     return googleLoader;
